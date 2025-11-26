@@ -27,9 +27,11 @@ export const Header = () => {
     <header className="bg-white/90 backdrop-blur border-b border-primary-light sticky top-0 z-40">
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-3" onClick={close}>
-          <div className="w-12 h-12 rounded-2xl bg-primary text-white grid place-items-center font-bold text-lg">
-            KaLi
-          </div>
+          <img
+            src="/logo.jpeg"
+            alt="KaLi Kicker Logo"
+            className="w-12 h-12 rounded-2xl border border-primary-light object-cover shadow-sm"
+          />
           <div>
             <p className="text-sm uppercase tracking-widest text-muted">KaLi Kicker</p>
             <p className="text-xl font-semibold text-primary">Kids Football Camps</p>
