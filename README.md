@@ -561,3 +561,30 @@ Wenn du möchtest, kann ich dir im nächsten Schritt:
 * eine **konkrete Komponentenliste inkl. Props** (z.B. `CampCardProps`, `BookingFormState`) ausformulieren
   oder
 * direkt ein **komplettes React-Skelett (alle Pages als leere Komponenten)** schreiben, das du nur noch in dein Projekt kopieren musst.
+
+---
+
+## Projektstruktur & lokale Entwicklung
+
+```text
+web/   → Vite + React Frontend (siehe Beschreibung oben)
+cms/   → Strapi 5 (Headless CMS, SQLite Quickstart)
+```
+
+### Frontend starten
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+### Strapi starten
+
+```bash
+cd cms
+npm install   # nur beim ersten Mal nötig
+npm run develop
+```
+
+Der Strapi-Admin ist anschließend unter `http://localhost:1337/admin` erreichbar (ersten Admin-User dort anlegen). Das React-Frontend greift später über API-URLs (z.B. `.env` → `VITE_API_URL`) auf die Strapi-Endpunkte zu.
