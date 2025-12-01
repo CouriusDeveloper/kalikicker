@@ -1,8 +1,11 @@
-import { team } from '../data/team'
 import { TeamMemberCard } from '../components/TeamMemberCard'
+import { useContent } from '../context/ContentContext'
 
-export const TeamPage = () => (
-  <div className="space-y-8">
+export const TeamPage = () => {
+  const { team } = useContent()
+
+  return (
+    <div className="space-y-8">
     <header className="space-y-4">
       <p className="text-sm uppercase tracking-[0.3em] text-primary">Team</p>
       <h1 className="text-4xl font-bold text-primary">Unser Trainer:innen-Team</h1>
@@ -16,4 +19,5 @@ export const TeamPage = () => (
       ))}
     </div>
   </div>
-)
+  )
+}

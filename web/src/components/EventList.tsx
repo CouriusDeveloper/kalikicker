@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import type { Event } from '../data/events'
+import type { Event } from '../types/content'
 
 interface EventListProps {
   events: Event[]

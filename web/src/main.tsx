@@ -19,6 +19,7 @@ import { AgbPage } from './pages/AgbPage'
 import { DatenschutzPage } from './pages/DatenschutzPage'
 import { ImpressumPage } from './pages/ImpressumPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { ContentProvider } from './context/ContentContext'
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <ContentProvider>
+      <RouterProvider router={router} />
+    </ContentProvider>
   </StrictMode>,
 )

@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import { useMemo, useState } from 'react'
-import { camps } from '../data/camps'
+import { useContent } from '../context/ContentContext'
 
 const jerseySizes = ['116', '128', '140', '152', '164', 'S']
 const shortSizes = ['116', '128', '140', '152', '164', 'S']
@@ -9,6 +9,7 @@ const gloveSizes = ['4', '5', '6', '7']
 const genders = ['Mädchen', 'Junge', 'Divers']
 
 export const BookingForm = () => {
+  const { camps } = useContent()
   const [form, setForm] = useState({
     campId: '',
     childFirstName: '',
@@ -25,13 +26,14 @@ export const BookingForm = () => {
     wantsSocks: 'Nein',
     wantsGloves: 'Nein',
     gloveSize: '',
+    earlyCare: 'Nein',
     notes: '',
     acceptAgb: false,
     acceptPrivacy: false,
     acceptMedia: false,
   })
 
-  const selectedCamp = useMemo(() => camps.find((camp) => camp.id === form.campId), [form.campId])
+  const selectedCamp = useMemo(() => camps.find((camp) => camp.id === form.campId), [camps, form.campId])
 
   const handleChange = <K extends keyof typeof form>(key: K, value: typeof form[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -43,8 +45,35 @@ export const BookingForm = () => {
       alert('Bitte bestätige AGB und Datenschutz.')
       return
     }
-    alert('Danke für deine Buchung! Wir melden uns mit allen Infos per Mail.')
-    console.table(form)
+    const camp = camps.find((item) => item.id === form.campId)
+    const subject = `Buchungsanfrage – ${form.childFirstName} ${form.childLastName}${camp ? ` (${camp.title})` : ''}`
+    const lines = [
+      'Neue Buchungsanfrage über das Website-Formular:',
+      '',
+      `Camp: ${camp ? `${camp.title} (${camp.dateRange})` : 'Noch nicht ausgewählt'}`,
+      `Frühbetreuung: ${form.earlyCare}`,
+      '',
+      'Kind:',
+      `• Name: ${form.childFirstName} ${form.childLastName}`,
+      `• Geburtsdatum: ${form.birthdate}`,
+      `• Geschlecht: ${form.gender}`,
+      '',
+      'Kontakt Eltern:',
+      `• E-Mail: ${form.parentEmail}`,
+      `• Telefon: ${form.parentPhone}`,
+      '',
+      'Ausstattung:',
+      `• Trikotgröße: ${form.jerseySize}`,
+      `• Wunschbedruckung: ${form.wantsPrint}${form.wantsPrint === 'Ja' ? ` – ${form.printInfo}` : ''}`,
+      `• Hose gewünscht: ${form.wantsShorts}${form.wantsShorts === 'Ja' ? ` – Größe ${form.shortSize}` : ''}`,
+      `• Stutzen: ${form.wantsSocks}`,
+      `• Handschuhe: ${form.wantsGloves}${form.wantsGloves === 'Ja' ? ` – Größe ${form.gloveSize}` : ''}`,
+      '',
+      `Weitere Infos: ${form.notes || 'Keine Angaben'}`,
+    ]
+    const body = encodeURIComponent(lines.join('\n'))
+    const mailto = `mailto:info@kalikicker.de?subject=${encodeURIComponent(subject)}&body=${body}`
+    window.location.assign(mailto)
   }
 
   return (
@@ -74,6 +103,9 @@ export const BookingForm = () => {
           <p className="text-sm text-muted">
             {selectedCamp.location} · {selectedCamp.ageGroup} · {selectedCamp.price} €
           </p>
+        )}
+        {!selectedCamp && camps.length === 0 && (
+          <p className="text-sm text-muted">Aktuell sind keine Camps zur Buchung freigeschaltet.</p>
         )}
       </div>
 
@@ -271,6 +303,24 @@ export const BookingForm = () => {
             </select>
           </label>
         )}
+      </div>
+
+      <div>
+        <h3 className="text-xl font-semibold text-primary">Frühbetreuung</h3>
+        <p className="text-sm text-muted mt-2">
+          Du kannst vor Campstart eine Frühbetreuung hinzubuchen. Wir melden uns mit Details zu Zeiten und Kosten.
+        </p>
+        <label className="text-sm mt-4 block">
+          Frühbetreuung gewünscht?
+          <select
+            className="mt-1 w-full rounded-xl border border-primary-light px-4 py-3"
+            value={form.earlyCare}
+            onChange={(event) => handleChange('earlyCare', event.target.value)}
+          >
+            <option>Nein</option>
+            <option>Ja, bitte informieren</option>
+          </select>
+        </label>
       </div>
 
       <div>

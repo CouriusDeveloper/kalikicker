@@ -1,8 +1,11 @@
-import { jobs } from '../data/jobs'
 import { JobCard } from '../components/JobCard'
+import { useContent } from '../context/ContentContext'
 
-export const JobsPage = () => (
-  <div className="space-y-8">
+export const JobsPage = () => {
+  const { jobs } = useContent()
+
+  return (
+    <div className="space-y-8">
     <header className="space-y-4">
       <p className="text-sm uppercase tracking-[0.3em] text-primary">Jobs</p>
       <h1 className="text-4xl font-bold text-primary">Jobs & Karriere</h1>
@@ -20,4 +23,5 @@ export const JobsPage = () => (
       </a>
     </div>
   </div>
-)
+  )
+}

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import type { Camp } from '../data/camps'
+import type { Camp } from '../types/content'
 
 interface CampCardProps {
   camp: Camp

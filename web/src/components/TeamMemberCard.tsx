@@ -1,4 +1,4 @@
-import type { TeamMember } from '../data/team'
+import type { TeamMember } from '../types/content'
 
 interface Props {
   member: TeamMember

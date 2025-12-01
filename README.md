@@ -588,3 +588,48 @@ npm run develop
 ```
 
 Der Strapi-Admin ist anschließend unter `http://localhost:1337/admin` erreichbar (ersten Admin-User dort anlegen). Das React-Frontend greift später über API-URLs (z.B. `.env` → `VITE_API_URL`) auf die Strapi-Endpunkte zu.
+
+---
+
+## Strapi-Integration & Content-Fluss
+
+### Content-Modelle
+
+Die CMS-Instanz bringt folgende Collection-Types inkl. Komponenten mit und spiegelt damit die bisherigen statischen Daten wider:
+
+- **Camps** (mit Services-, Schedule- und Highlights-Komponenten sowie Relation zu Events)
+- **Events** (Termin-Teaser, optionaler Bezug zu Camps)
+- **Team Members**
+- **Partners**
+- **Projects**
+- **Jobs** (Requirements als Text-Komponenten)
+
+Wiederverwendete Komponenten liegen unter `cms/src/components/shared` (`text-item`, `schedule-entry`).
+
+### Automatisches Seeding & Berechtigungen
+
+Beim Starten von Strapi (`npm run develop` oder `npm run start`) läuft das Bootstrap-Skript `cms/src/index.ts`:
+
+1. **Seed-Daten** aus `cms/src/data/seed-data.ts` werden angelegt, falls sie anhand des Slugs noch nicht existieren.
+2. **Public API-Rechte** für `find`/`findOne` sämtlicher KaLi-Kollektionen werden automatisch aktiviert. Dadurch kann das Frontend ohne manuelles Klicken im Admin auf die REST-Endpoints zugreifen.
+
+### Frontend-Datenquelle
+
+- Das React-Frontend lädt alle Inhalte via `useContent`-Hook (`web/src/context/ContentContext.tsx`).
+- API-Aufrufe sind in `web/src/services/strapiClient.ts` gekapselt und greifen auf `VITE_STRAPI_URL` zurück.
+- Die bisherigen statischen Dateien unter `web/src/data` wurden entfernt.
+
+### Umgebungsvariable
+
+Im Frontend bitte in `.env` (oder `.env.local`) setzen:
+
+```
+VITE_STRAPI_URL=http://localhost:1337
+```
+
+Im Codespaces-Setup mit Proxy einfach die externe URL eintragen (z.B. `https://<codespace>-1337.app.github.dev`). Ein Beispiel findet sich in `web/.env.example`.
+
+### Typen & Fehlerzustände
+
+- Gemeinsame Typdefinitionen: `web/src/types/content.ts`.
+- Globale Lade-/Fehlerzustände werden im Layout angezeigt, inklusive Retry-Button (`ContentProvider`).

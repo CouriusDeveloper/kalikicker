@@ -1,0 +1,35 @@
+diff --git a/node_modules/@strapi/admin/dist/server/server/src/destroy.js b/node_modules/@strapi/admin/dist/server/server/src/destroy.js
+index 3b28003..c88f638 100644
+--- a/node_modules/@strapi/admin/dist/server/server/src/destroy.js
++++ b/node_modules/@strapi/admin/dist/server/server/src/destroy.js
+@@ -3,7 +3,11 @@
+ var index = require('./utils/index.js');
+ 
+ var destroy = (async ()=>{
+-    const { conditionProvider, actionProvider } = index.getService('permission');
++    const permissionService = index.getService('permission');
++    if (!permissionService) {
++        return;
++    }
++    const { conditionProvider, actionProvider } = permissionService;
+     await conditionProvider.clear();
+     await actionProvider.clear();
+ });
+diff --git a/node_modules/@strapi/admin/dist/server/server/src/destroy.mjs b/node_modules/@strapi/admin/dist/server/server/src/destroy.mjs
+index 7db3e19..528c13d 100644
+--- a/node_modules/@strapi/admin/dist/server/server/src/destroy.mjs
++++ b/node_modules/@strapi/admin/dist/server/server/src/destroy.mjs
+@@ -1,7 +1,11 @@
+ import { getService } from './utils/index.mjs';
+ 
+-var destroy = (async ()=>{
+-    const { conditionProvider, actionProvider } = getService('permission');
++const destroy = (async ()=>{
++    const permissionService = getService('permission');
++    if (!permissionService) {
++        return;
++    }
++    const { conditionProvider, actionProvider } = permissionService;
+     await conditionProvider.clear();
+     await actionProvider.clear();
+ });

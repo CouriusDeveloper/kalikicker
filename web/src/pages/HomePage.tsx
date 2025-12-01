@@ -1,17 +1,20 @@
 import { Link } from 'react-router-dom'
 import { Hero } from '../components/Hero'
-import { events } from '../data/events'
 import { Section } from '../components/Section'
 import { EventList } from '../components/EventList'
-import { camps } from '../data/camps'
 import { CampCard } from '../components/CampCard'
-import { projects } from '../data/projects'
 import { ProjectCard } from '../components/ProjectCard'
-import { partners } from '../data/partners'
 import { PartnerLogoGrid } from '../components/PartnerLogoGrid'
+import { useContent } from '../context/ContentContext'
 
-export const HomePage = () => (
-  <div className="space-y-16">
+export const HomePage = () => {
+  const { events, camps, projects, partners } = useContent()
+  const upcomingEvents = events.slice(0, 3)
+  const featuredCamps = camps.slice(0, 3)
+  const featuredProjects = projects.slice(0, 3)
+
+  return (
+    <div className="space-y-16">
     <Hero
       kicker="Hamburg"
       title="Fußballcamps für Kinder mit Herz und Haltung"
@@ -22,24 +25,24 @@ export const HomePage = () => (
         </Link>
       }
       secondaryAction={
-        <Link to="/termine" className="inline-flex items-center rounded-full border border-primary text-primary px-6 py-3 font-semibold">
-          Aktuelle Termine
+        <Link to="/camps" className="inline-flex items-center rounded-full border border-primary text-primary px-6 py-3 font-semibold">
+          Camps & Veranstaltungen
         </Link>
       }
       image="https://images.unsplash.com/photo-1509023913720-34be34cfa8f1?auto=format&fit=crop&w=1200&q=80"
     />
 
     <Section
-      eyebrow="Termine"
+      eyebrow="Camps & Veranstaltungen"
       title="Aktuelle Camps & Veranstaltungen"
       description="Alle Termine sind limitiert. Sichere dir frühzeitig einen Platz."
       actions={
-        <Link to="/termine" className="rounded-full bg-primary text-white px-5 py-2 text-sm font-semibold">
-          Alle Termine
+        <Link to="/camps" className="rounded-full bg-primary text-white px-5 py-2 text-sm font-semibold">
+          Alle Camps & Veranstaltungen
         </Link>
       }
     >
-      <EventList events={events} />
+      <EventList events={upcomingEvents} />
     </Section>
 
     <Section
@@ -93,19 +96,19 @@ export const HomePage = () => (
       }
     >
       <div className="grid gap-6 md:grid-cols-3">
-        {camps.map((camp) => (
+        {featuredCamps.map((camp) => (
           <CampCard key={camp.id} camp={camp} />
         ))}
       </div>
     </Section>
 
     <Section
-      eyebrow="Sozialprojekte"
+      eyebrow="Spendenprojekte"
       title="Mit jedem Kind etwas bewegen"
       description="Ein Teil der Campgebühr fließt direkt in unsere Partnerschaften mit Organisationen aus Hamburg."
     >
       <div className="grid gap-6 md:grid-cols-3">
-        {projects.map((project) => (
+        {featuredProjects.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
       </div>
@@ -140,4 +143,5 @@ export const HomePage = () => (
       </div>
     </section>
   </div>
-)
+  )
+}

@@ -1,4 +1,4 @@
-import type { Partner } from '../data/partners'
+import type { Partner } from '../types/content'
 
 interface PartnerLogoGridProps {
   partners: Partner[]

@@ -1,11 +1,14 @@
 import { EventList } from '../components/EventList'
-import { events } from '../data/events'
+import { useContent } from '../context/ContentContext'
 
-export const TerminePage = () => (
-  <div className="space-y-10">
+export const TerminePage = () => {
+  const { events } = useContent()
+
+  return (
+    <div className="space-y-10">
     <header className="space-y-3">
-      <p className="text-sm uppercase tracking-[0.3em] text-primary">Termine</p>
-      <h1 className="text-4xl font-bold text-primary">Termine & Veranstaltungen</h1>
+      <p className="text-sm uppercase tracking-[0.3em] text-primary">Camps & Veranstaltungen</p>
+      <h1 className="text-4xl font-bold text-primary">Camps & Veranstaltungen</h1>
       <p className="text-muted text-lg">
         Alle kommenden Camps auf einen Blick. Filtere nach Ort, Monat oder Altersgruppe.
       </p>
@@ -30,4 +33,5 @@ export const TerminePage = () => (
 
     <EventList events={events} compact />
   </div>
-)
+  )
+}

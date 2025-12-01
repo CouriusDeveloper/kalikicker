@@ -1,17 +1,22 @@
 import { Link, useParams } from 'react-router-dom'
-import { getCampById } from '../data/camps'
+import { useContent } from '../context/ContentContext'
 
 export const CampDetailPage = () => {
   const { campId } = useParams()
-  const camp = getCampById(campId ?? '')
+  const { camps, loading } = useContent()
+  const camp = camps.find((item) => item.id === (campId ?? ''))
 
   if (!camp) {
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-semibold text-primary">Camp nicht gefunden</h1>
-        <Link to="/camps" className="text-primary underline">
-          Zur Übersicht
-        </Link>
+        <h1 className="text-3xl font-semibold text-primary">
+          {loading ? 'Camp wird geladen …' : 'Camp nicht gefunden'}
+        </h1>
+        {!loading && (
+          <Link to="/camps" className="text-primary underline">
+            Zur Übersicht
+          </Link>
+        )}
       </div>
     )
   }

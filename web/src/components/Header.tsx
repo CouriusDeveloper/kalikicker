@@ -3,11 +3,10 @@ import { Link, NavLink } from 'react-router-dom'
 
 const navItems = [
   { label: 'Startseite', to: '/' },
-  { label: 'Camps', to: '/camps' },
-  { label: 'Termine', to: '/termine' },
+  { label: 'Camps & Veranstaltungen', to: '/camps' },
   { label: 'Konzept', to: '/konzept' },
   { label: 'Team', to: '/team' },
-  { label: 'Projekte', to: '/projekte' },
+  { label: 'Spendenprojekte', to: '/projekte' },
   { label: 'Partner', to: '/partner' },
   { label: 'Galerie', to: '/galerie' },
 ]
@@ -19,7 +18,7 @@ export const Header = () => {
   const close = () => setIsOpen(false)
 
   const linkClasses = ({ isActive }: { isActive: boolean }) =>
-    `px-3 py-2 text-sm font-medium rounded-full transition-colors ${
+    `px-3 py-2 text-sm font-medium rounded-full transition-colors whitespace-nowrap ${
       isActive ? 'bg-primary text-white' : 'text-text hover:bg-primary-light'
     }`
 
@@ -48,7 +47,7 @@ export const Header = () => {
           </svg>
         </button>
 
-        <nav className="hidden md:flex items-center gap-2 text-sm">
+        <nav className="hidden md:flex items-center gap-2 text-sm whitespace-nowrap">
           {navItems.map((item) => (
             <NavLink key={item.to} to={item.to} className={linkClasses} onClick={close}>
               {item.label}
@@ -56,7 +55,7 @@ export const Header = () => {
           ))}
           <Link
             to="/buchen"
-            className="ml-4 inline-flex items-center rounded-full bg-primary text-white px-5 py-2 text-sm font-semibold shadow-sm hover:bg-primary-dark"
+            className="ml-4 inline-flex items-center rounded-full bg-primary text-white px-5 py-2 text-sm font-semibold shadow-sm hover:bg-primary-dark whitespace-nowrap"
           >
             Jetzt buchen
           </Link>
@@ -73,7 +72,7 @@ export const Header = () => {
             ))}
             <Link
               to="/buchen"
-              className="inline-flex items-center justify-center rounded-full bg-primary text-white px-5 py-2 text-sm font-semibold"
+              className="inline-flex items-center justify-center rounded-full bg-primary text-white px-5 py-2 text-sm font-semibold whitespace-nowrap"
               onClick={close}
             >
               Jetzt buchen

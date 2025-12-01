@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import type { Job } from '../data/jobs'
+import type { Job } from '../types/content'
 
 interface Props {
   job: Job

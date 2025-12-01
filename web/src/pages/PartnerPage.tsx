@@ -1,8 +1,11 @@
-import { partners } from '../data/partners'
 import { PartnerLogoGrid } from '../components/PartnerLogoGrid'
+import { useContent } from '../context/ContentContext'
 
-export const PartnerPage = () => (
-  <div className="space-y-8">
+export const PartnerPage = () => {
+  const { partners } = useContent()
+
+  return (
+    <div className="space-y-8">
     <header className="space-y-4">
       <p className="text-sm uppercase tracking-[0.3em] text-primary">Partner</p>
       <h1 className="text-4xl font-bold text-primary">Unsere Partner:innen</h1>
@@ -18,4 +21,5 @@ export const PartnerPage = () => (
       </a>
     </div>
   </div>
-)
+  )
+}

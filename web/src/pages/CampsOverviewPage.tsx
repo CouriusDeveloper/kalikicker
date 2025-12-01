@@ -1,13 +1,17 @@
 import { Link } from 'react-router-dom'
-import { camps } from '../data/camps'
 import { CampCard } from '../components/CampCard'
+import { EventList } from '../components/EventList'
+import { useContent } from '../context/ContentContext'
 
-export const CampsOverviewPage = () => (
-  <div className="space-y-10">
+export const CampsOverviewPage = () => {
+  const { camps, events } = useContent()
+
+  return (
+    <div className="space-y-10">
     <header className="space-y-4">
-      <p className="text-sm uppercase tracking-[0.3em] text-primary">Camps</p>
-      <h1 className="text-4xl font-bold text-primary">Unsere Camps</h1>
-      <p className="text-muted text-lg">Filtere nach Ferien, Orten oder Altersstufen und finde dein Camp.</p>
+      <p className="text-sm uppercase tracking-[0.3em] text-primary">Camps & Veranstaltungen</p>
+      <h1 className="text-4xl font-bold text-primary">Camps & Veranstaltungen</h1>
+      <p className="text-muted text-lg">Alle aktuellen Termine auf einen Blick – inklusive Workshops und Special Events.</p>
     </header>
 
     <div className="bg-white rounded-3xl border border-primary-light shadow-sm p-6 grid gap-4 md:grid-cols-3">
@@ -32,6 +36,13 @@ export const CampsOverviewPage = () => (
       ))}
     </div>
 
+    {events.length > 0 && (
+      <div className="space-y-4">
+        <h2 className="text-3xl font-semibold text-primary">Nächste Veranstaltungen</h2>
+        <EventList events={events} compact />
+      </div>
+    )}
+
     <div className="bg-primary-light rounded-3xl p-6 flex flex-col md:flex-row md:items-center gap-4">
       <div className="flex-1">
         <p className="text-sm uppercase tracking-[0.3em] text-primary">Nicht fündig geworden?</p>
@@ -42,4 +53,5 @@ export const CampsOverviewPage = () => (
       </Link>
     </div>
   </div>
-)
+  )
+}

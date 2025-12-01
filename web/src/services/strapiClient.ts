@@ -1,0 +1,224 @@
+import type { Camp, Event, Job, Partner, Project, TeamMember } from '../types/content'
+
+type TextComponent = { id?: number; value?: string | null }
+type ScheduleComponent = { id?: number; time?: string | null; activity?: string | null }
+
+type RelationData<T> = {
+	data: {
+		id: number
+		attributes: T
+	} | null
+}
+
+type CampAttributes = Omit<Camp, 'id' | 'services' | 'schedule' | 'highlights'> & {
+	slug: string
+	services?: TextComponent[] | null
+	schedule?: ScheduleComponent[] | null
+	highlights?: TextComponent[] | null
+}
+
+type EventAttributes = Omit<Event, 'id' | 'campId'> & {
+	slug: string
+	camp?: RelationData<CampAttributes>
+}
+
+type TeamAttributes = Omit<TeamMember, 'id'> & { slug: string }
+type PartnerAttributes = Omit<Partner, 'id'> & { slug: string }
+type ProjectAttributes = Omit<Project, 'id'> & { slug: string }
+type JobAttributes = Omit<Job, 'id' | 'requirements'> & {
+	slug: string
+	requirements?: TextComponent[] | null
+}
+
+type StrapiEntry<T> =
+	| {
+		id: number
+		attributes: T
+		[key: string]: unknown
+	}
+	| (T & { id: number })
+
+const unwrapEntry = <T>(entry: StrapiEntry<T>): T =>
+	'attributes' in entry ? entry.attributes : entry
+
+type CollectionResponse<T> = {
+	data: Array<StrapiEntry<T>>
+}
+
+const DEFAULT_STRAPI_URL = 'http://localhost:1337'
+
+const detectCodespaceStrapiUrl = () => {
+	if (typeof window === 'undefined') {
+		return undefined
+	}
+	const hostname = window.location.hostname
+	const match = hostname.match(/^(?<base>.+)-(\d+)\.app\.github\.dev$/)
+	if (!match || !match.groups?.base) {
+		return undefined
+	}
+	return `${window.location.protocol}//${match.groups.base}-1337.app.github.dev`
+}
+
+const STRAPI_URL = (
+	import.meta.env.VITE_STRAPI_URL ||
+	// When running inside GitHub Codespaces the frontend and Strapi use different forwarded ports.
+	// Derive the Strapi URL automatically so the site can fetch content without extra env tweaks.
+	detectCodespaceStrapiUrl() ||
+	DEFAULT_STRAPI_URL
+).replace(/\/$/, '')
+
+const request = async <T>(path: string, configureParams?: (params: URLSearchParams) => void) => {
+	const url = new URL(path.startsWith('/') ? path : `/${path}`, STRAPI_URL)
+	if (configureParams) {
+		const params = new URLSearchParams()
+		configureParams(params)
+		params.forEach((value, key) => {
+			url.searchParams.append(key, value)
+		})
+	}
+
+	const response = await fetch(url.toString())
+	if (!response.ok) {
+		throw new Error(`Strapi request failed (${response.status})`)
+	}
+	return (await response.json()) as T
+}
+
+const extractText = (items?: TextComponent[] | null) =>
+	(items ?? [])
+		.map((item) => item.value?.trim())
+		.filter((value): value is string => Boolean(value))
+
+const extractSchedule = (items?: ScheduleComponent[] | null) =>
+	(items ?? [])
+		.map((item) => ({ time: item.time ?? '', activity: item.activity ?? '' }))
+		.filter((entry) => entry.time && entry.activity)
+
+const mapCamp = (entry: StrapiEntry<CampAttributes>) => {
+	const attributes = unwrapEntry(entry)
+	return {
+		id: attributes.slug,
+		title: attributes.title,
+		season: attributes.season,
+		dateRange: attributes.dateRange,
+		location: attributes.location,
+		venue: attributes.venue,
+		ageGroup: attributes.ageGroup,
+		description: attributes.description,
+		price: attributes.price,
+		spots: attributes.spots,
+		badge: attributes.badge ?? undefined,
+		heroImage: attributes.heroImage,
+		services: extractText(attributes.services),
+		schedule: extractSchedule(attributes.schedule),
+		highlights: extractText(attributes.highlights),
+	}
+}
+
+const mapEvent = (entry: StrapiEntry<EventAttributes>) => {
+	const attributes = unwrapEntry(entry)
+	return {
+		id: attributes.slug,
+		title: attributes.title,
+		date: attributes.date,
+		location: attributes.location,
+		ageGroup: attributes.ageGroup,
+		status: attributes.status,
+		campId: attributes.camp?.data?.attributes.slug,
+	}
+}
+
+const mapTeamMember = (entry: StrapiEntry<TeamAttributes>) => {
+	const attributes = unwrapEntry(entry)
+	return {
+		id: attributes.slug,
+		name: attributes.name,
+		role: attributes.role,
+		qualification: attributes.qualification,
+		statement: attributes.statement,
+		photo: attributes.photo,
+	}
+}
+
+const mapPartner = (entry: StrapiEntry<PartnerAttributes>) => {
+	const attributes = unwrapEntry(entry)
+	return {
+		id: attributes.slug,
+		name: attributes.name,
+		logo: attributes.logo,
+		description: attributes.description,
+		url: attributes.url ?? undefined,
+	}
+}
+
+const mapProject = (entry: StrapiEntry<ProjectAttributes>) => {
+	const attributes = unwrapEntry(entry)
+	return {
+		id: attributes.slug,
+		name: attributes.name,
+		description: attributes.description,
+		impact: attributes.impact,
+		logo: attributes.logo,
+	}
+}
+
+const mapJob = (entry: StrapiEntry<JobAttributes>) => {
+	const attributes = unwrapEntry(entry)
+	return {
+		id: attributes.slug,
+		title: attributes.title,
+		type: attributes.type,
+		location: attributes.location,
+		summary: attributes.summary,
+		requirements: extractText(attributes.requirements),
+		email: attributes.email,
+	}
+}
+
+export const fetchCamps = async () => {
+	const result = await request<CollectionResponse<CampAttributes>>('/api/camps', (params) => {
+		params.append('sort[0]', 'dateRange:asc')
+		params.append('populate[services]', '*')
+		params.append('populate[schedule]', '*')
+		params.append('populate[highlights]', '*')
+	})
+	return result.data.map(mapCamp)
+}
+
+export const fetchEvents = async () => {
+	const result = await request<CollectionResponse<EventAttributes>>('/api/events', (params) => {
+		params.append('sort[0]', 'date:asc')
+		// Populate linked camp so we can surface the slug
+		params.append('populate', 'camp')
+	})
+	return result.data.map(mapEvent)
+}
+
+export const fetchTeam = async () => {
+	const result = await request<CollectionResponse<TeamAttributes>>('/api/team-members', (params) => {
+		params.append('sort[0]', 'name:asc')
+	})
+	return result.data.map(mapTeamMember)
+}
+
+export const fetchPartners = async () => {
+	const result = await request<CollectionResponse<PartnerAttributes>>('/api/partners', (params) => {
+		params.append('sort[0]', 'name:asc')
+	})
+	return result.data.map(mapPartner)
+}
+
+export const fetchProjects = async () => {
+	const result = await request<CollectionResponse<ProjectAttributes>>('/api/projects', (params) => {
+		params.append('sort[0]', 'name:asc')
+	})
+	return result.data.map(mapProject)
+}
+
+export const fetchJobs = async () => {
+	const result = await request<CollectionResponse<JobAttributes>>('/api/jobs', (params) => {
+		params.append('sort[0]', 'title:asc')
+		params.append('populate[requirements]', '*')
+	})
+	return result.data.map(mapJob)
+}
