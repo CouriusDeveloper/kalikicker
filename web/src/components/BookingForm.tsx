@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useContent } from '../context/ContentContext'
 
 const jerseySizes = ['116', '128', '140', '152', '164', 'S']
@@ -10,6 +10,9 @@ const genders = ['Mädchen', 'Junge', 'Divers']
 
 export const BookingForm = () => {
   const { camps } = useContent()
+  const mailtoRef = useRef<HTMLAnchorElement | null>(null)
+  const [mailtoLink, setMailtoLink] = useState<string | null>(null)
+  const [mailtoBlocked, setMailtoBlocked] = useState(false)
   const [form, setForm] = useState({
     campId: '',
     childFirstName: '',
@@ -76,11 +79,43 @@ export const BookingForm = () => {
     ]
     const body = encodeURIComponent(lines.join('\n'))
     const mailto = `mailto:info@kalikicker.de?subject=${encodeURIComponent(subject)}&body=${body}`
-    window.location.assign(mailto)
+    setMailtoLink(mailto)
+
+    const anchor = mailtoRef.current
+    let redirected = false
+
+    if (anchor) {
+      anchor.setAttribute('href', mailto)
+      anchor.click()
+      redirected = true
+    }
+
+    if (!redirected) {
+      const popup = window.open(mailto)
+      redirected = !!popup
+    }
+
+    if (!redirected) {
+      window.location.href = mailto
+    }
+
+    setMailtoBlocked(!redirected)
+  }
+
+  const handleCopyMailText = async () => {
+    if (!mailtoLink) return
+    try {
+      await navigator.clipboard.writeText(mailtoLink)
+      alert('Link kopiert. Du kannst ihn jetzt in dein Mailprogramm einfügen.')
+    } catch (error) {
+      console.error('Clipboard copy failed', error)
+      alert('Bitte markiere den Link manuell und kopiere ihn (Strg+C / Cmd+C).')
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-card border border-primary-light p-8 space-y-8">
+      <a ref={mailtoRef} href="mailto:info@kalikicker.de" aria-hidden="true" tabIndex={-1} className="sr-only" />
       <div className="bg-primary-light/60 border border-primary rounded-2xl p-4 text-sm">
         Bitte fülle alle Pflichtfelder (*) aus. Mit Absenden bestätigst du, unsere AGB und Datenschutzerklärung gelesen zu haben.
       </div>
@@ -113,6 +148,27 @@ export const BookingForm = () => {
         )}
       </div>
 
+
+                {mailtoLink && (
+                  <div className="space-y-3 rounded-2xl border border-primary-light bg-primary-light/40 p-4 text-sm">
+                    <p>
+                      {mailtoBlocked
+                        ? 'Chrome hat den automatischen Aufruf blockiert. Bitte öffne dein Mailprogramm manuell:'
+                        : 'Falls sich dein Mailprogramm nicht automatisch geöffnet hat, nutze die folgenden Aktionen:'}
+                    </p>
+                    <div className="flex flex-wrap gap-3">
+                      <a href={mailtoLink} className="rounded-full bg-primary text-white px-4 py-2 font-semibold" target="_blank" rel="noreferrer">
+                        E-Mail öffnen
+                      </a>
+                      <button type="button" onClick={handleCopyMailText} className="rounded-full border border-primary px-4 py-2 font-semibold text-primary">
+                        Link kopieren
+                      </button>
+                    </div>
+                    <p className="text-xs text-muted">
+                      Hinweis: Chrome zeigt ggf. einen Hinweis zu „Bounce Tracking“. Das ist eine neue Sicherheitsmaßnahme. Ein zusätzlicher Klick auf „E-Mail öffnen“ funktioniert dennoch und löscht keine Daten deiner Anfrage.
+                    </p>
+                  </div>
+                )}
       <div>
         <h3 className="text-xl font-semibold text-primary">Daten des Kindes</h3>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
