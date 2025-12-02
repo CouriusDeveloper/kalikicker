@@ -92,6 +92,7 @@ export const BookingForm = () => {
             onChange={(event) => handleChange('campId', event.target.value)}
           >
             <option value="">Bitte auswählen</option>
+            <option value="test">Test (nur Mail-Check)</option>
             {camps.map((camp) => (
               <option key={camp.id} value={camp.id}>
                 {camp.title} – {camp.dateRange}
