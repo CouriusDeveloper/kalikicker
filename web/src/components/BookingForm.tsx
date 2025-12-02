@@ -33,7 +33,10 @@ export const BookingForm = () => {
     acceptMedia: false,
   })
 
-  const selectedCamp = useMemo(() => camps.find((camp) => camp.id === form.campId), [camps, form.campId])
+  const selectedCamp = useMemo(
+    () => camps.find((camp) => String(camp.id) === form.campId),
+    [camps, form.campId],
+  )
 
   const handleChange = <K extends keyof typeof form>(key: K, value: typeof form[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -45,7 +48,7 @@ export const BookingForm = () => {
       alert('Bitte bestätige AGB und Datenschutz.')
       return
     }
-    const camp = camps.find((item) => item.id === form.campId)
+    const camp = camps.find((item) => String(item.id) === form.campId)
     const subject = `Buchungsanfrage – ${form.childFirstName} ${form.childLastName}${camp ? ` (${camp.title})` : ''}`
     const lines = [
       'Neue Buchungsanfrage über das Website-Formular:',
@@ -94,7 +97,7 @@ export const BookingForm = () => {
             <option value="">Bitte auswählen</option>
             <option value="test">Test (nur Mail-Check)</option>
             {camps.map((camp) => (
-              <option key={camp.id} value={camp.id}>
+              <option key={camp.id} value={String(camp.id)}>
                 {camp.title} – {camp.dateRange}
               </option>
             ))}
