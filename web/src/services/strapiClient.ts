@@ -52,6 +52,8 @@ export const STRAPI_URL = (
 	DEFAULT_STRAPI_URL
 ).replace(/\/$/, '')
 
+const STRAPI_TOKEN = import.meta.env.VITE_STRAPI_TOKEN
+
 const request = async <T>(path: string, configureParams?: (params: URLSearchParams) => void) => {
 	const url = new URL(path.startsWith('/') ? path : `/${path}`, STRAPI_URL)
 	if (configureParams) {
@@ -62,7 +64,12 @@ const request = async <T>(path: string, configureParams?: (params: URLSearchPara
 		})
 	}
 
-	const response = await fetch(url.toString())
+	const headers: Record<string, string> = {}
+	if (STRAPI_TOKEN) {
+		headers.Authorization = `Bearer ${STRAPI_TOKEN}`
+	}
+
+	const response = await fetch(url.toString(), { headers })
 	if (!response.ok) {
 		throw new Error(`Strapi request failed (${response.status})`)
 	}
@@ -188,11 +195,16 @@ export type BookingRequestPayload = {
 }
 
 export const submitBookingRequest = async (payload: BookingRequestPayload) => {
+	const headers: Record<string, string> = {
+		'Content-Type': 'application/json',
+	}
+	if (STRAPI_TOKEN) {
+		headers.Authorization = `Bearer ${STRAPI_TOKEN}`
+	}
+
 	const response = await fetch(`${STRAPI_URL}/api/booking-request`, {
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
+		headers,
 		body: JSON.stringify(payload),
 	})
 
