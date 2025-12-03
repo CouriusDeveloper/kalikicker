@@ -1,6 +1,7 @@
 import type { FormEvent } from 'react'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useContent } from '../context/ContentContext'
+import { submitBookingRequest } from '../services/strapiClient'
 
 const jerseySizes = ['116', '128', '140', '152', '164', 'S']
 const shortSizes = ['116', '128', '140', '152', '164', 'S']
@@ -8,33 +9,58 @@ const gloveSizes = ['4', '5', '6', '7']
 
 const genders = ['Mädchen', 'Junge', 'Divers']
 
+type FormState = {
+  campId: string
+  childFirstName: string
+  childLastName: string
+  birthdate: string
+  gender: string
+  parentEmail: string
+  parentPhone: string
+  jerseySize: string
+  wantsPrint: 'Ja' | 'Nein'
+  printInfo: string
+  wantsShorts: 'Ja' | 'Nein'
+  shortSize: string
+  wantsSocks: 'Ja' | 'Nein'
+  wantsGloves: 'Ja' | 'Nein'
+  gloveSize: string
+  earlyCare: 'Ja, bitte informieren' | 'Nein'
+  notes: string
+  acceptAgb: boolean
+  acceptPrivacy: boolean
+  subscribeNewsletter: boolean
+}
+
+const createInitialFormState = (): FormState => ({
+  campId: '',
+  childFirstName: '',
+  childLastName: '',
+  birthdate: '',
+  gender: '',
+  parentEmail: '',
+  parentPhone: '',
+  jerseySize: '',
+  wantsPrint: 'Nein',
+  printInfo: '',
+  wantsShorts: 'Nein',
+  shortSize: '',
+  wantsSocks: 'Nein',
+  wantsGloves: 'Nein',
+  gloveSize: '',
+  earlyCare: 'Nein',
+  notes: '',
+  acceptAgb: false,
+  acceptPrivacy: false,
+  subscribeNewsletter: false,
+})
+
 export const BookingForm = () => {
   const { camps } = useContent()
-  const mailtoRef = useRef<HTMLAnchorElement | null>(null)
-  const [mailtoLink, setMailtoLink] = useState<string | null>(null)
-  const [mailtoBlocked, setMailtoBlocked] = useState(false)
-  const [form, setForm] = useState({
-    campId: '',
-    childFirstName: '',
-    childLastName: '',
-    birthdate: '',
-    gender: '',
-    parentEmail: '',
-    parentPhone: '',
-    jerseySize: '',
-    wantsPrint: 'Nein',
-    printInfo: '',
-    wantsShorts: 'Nein',
-    shortSize: '',
-    wantsSocks: 'Nein',
-    wantsGloves: 'Nein',
-    gloveSize: '',
-    earlyCare: 'Nein',
-    notes: '',
-    acceptAgb: false,
-    acceptPrivacy: false,
-    acceptMedia: false,
-  })
+  const [form, setForm] = useState<FormState>(createInitialFormState)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [submitError, setSubmitError] = useState('')
 
   const selectedCamp = useMemo(
     () => camps.find((camp) => String(camp.id) === form.campId),
@@ -45,77 +71,38 @@ export const BookingForm = () => {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
     if (!form.acceptAgb || !form.acceptPrivacy) {
       alert('Bitte bestätige AGB und Datenschutz.')
       return
     }
+    setSubmitStatus('idle')
+    setSubmitError('')
+    setIsSubmitting(true)
+
     const camp = camps.find((item) => String(item.id) === form.campId)
-    const subject = `Buchungsanfrage – ${form.childFirstName} ${form.childLastName}${camp ? ` (${camp.title})` : ''}`
-    const lines = [
-      'Neue Buchungsanfrage über das Website-Formular:',
-      '',
-      `Camp: ${camp ? `${camp.title} (${camp.dateRange})` : 'Noch nicht ausgewählt'}`,
-      `Frühbetreuung: ${form.earlyCare}`,
-      '',
-      'Kind:',
-      `• Name: ${form.childFirstName} ${form.childLastName}`,
-      `• Geburtsdatum: ${form.birthdate}`,
-      `• Geschlecht: ${form.gender}`,
-      '',
-      'Kontakt Eltern:',
-      `• E-Mail: ${form.parentEmail}`,
-      `• Telefon: ${form.parentPhone}`,
-      '',
-      'Ausstattung:',
-      `• Trikotgröße: ${form.jerseySize}`,
-      `• Wunschbedruckung: ${form.wantsPrint}${form.wantsPrint === 'Ja' ? ` – ${form.printInfo}` : ''}`,
-      `• Hose gewünscht: ${form.wantsShorts}${form.wantsShorts === 'Ja' ? ` – Größe ${form.shortSize}` : ''}`,
-      `• Stutzen: ${form.wantsSocks}`,
-      `• Handschuhe: ${form.wantsGloves}${form.wantsGloves === 'Ja' ? ` – Größe ${form.gloveSize}` : ''}`,
-      '',
-      `Weitere Infos: ${form.notes || 'Keine Angaben'}`,
-    ]
-    const body = encodeURIComponent(lines.join('\n'))
-    const mailto = `mailto:info@kalikicker.de?subject=${encodeURIComponent(subject)}&body=${body}`
-    setMailtoLink(mailto)
 
-    const anchor = mailtoRef.current
-    let redirected = false
-
-    if (anchor) {
-      anchor.setAttribute('href', mailto)
-      anchor.click()
-      redirected = true
-    }
-
-    if (!redirected) {
-      const popup = window.open(mailto)
-      redirected = !!popup
-    }
-
-    if (!redirected) {
-      window.location.href = mailto
-    }
-
-    setMailtoBlocked(!redirected)
-  }
-
-  const handleCopyMailText = async () => {
-    if (!mailtoLink) return
     try {
-      await navigator.clipboard.writeText(mailtoLink)
-      alert('Link kopiert. Du kannst ihn jetzt in dein Mailprogramm einfügen.')
+      await submitBookingRequest({
+        ...form,
+        campTitle: camp?.title,
+        campDateRange: camp?.dateRange,
+        campLocation: camp?.location,
+        campPrice: camp?.price,
+      })
+      setSubmitStatus('success')
+      setForm(createInitialFormState())
     } catch (error) {
-      console.error('Clipboard copy failed', error)
-      alert('Bitte markiere den Link manuell und kopiere ihn (Strg+C / Cmd+C).')
+      setSubmitStatus('error')
+      setSubmitError(error instanceof Error ? error.message : 'Unbekannter Fehler')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-card border border-primary-light p-8 space-y-8">
-      <a ref={mailtoRef} href="mailto:info@kalikicker.de" aria-hidden="true" tabIndex={-1} className="sr-only" />
       <div className="bg-primary-light/60 border border-primary rounded-2xl p-4 text-sm">
         Bitte fülle alle Pflichtfelder (*) aus. Mit Absenden bestätigst du, unsere AGB und Datenschutzerklärung gelesen zu haben.
       </div>
@@ -147,28 +134,6 @@ export const BookingForm = () => {
           <p className="text-sm text-muted">Aktuell sind keine Camps zur Buchung freigeschaltet.</p>
         )}
       </div>
-
-
-                {mailtoLink && (
-                  <div className="space-y-3 rounded-2xl border border-primary-light bg-primary-light/40 p-4 text-sm">
-                    <p>
-                      {mailtoBlocked
-                        ? 'Chrome hat den automatischen Aufruf blockiert. Bitte öffne dein Mailprogramm manuell:'
-                        : 'Falls sich dein Mailprogramm nicht automatisch geöffnet hat, nutze die folgenden Aktionen:'}
-                    </p>
-                    <div className="flex flex-wrap gap-3">
-                      <a href={mailtoLink} className="rounded-full bg-primary text-white px-4 py-2 font-semibold" target="_blank" rel="noreferrer">
-                        E-Mail öffnen
-                      </a>
-                      <button type="button" onClick={handleCopyMailText} className="rounded-full border border-primary px-4 py-2 font-semibold text-primary">
-                        Link kopieren
-                      </button>
-                    </div>
-                    <p className="text-xs text-muted">
-                      Hinweis: Chrome zeigt ggf. einen Hinweis zu „Bounce Tracking“. Das ist eine neue Sicherheitsmaßnahme. Ein zusätzlicher Klick auf „E-Mail öffnen“ funktioniert dennoch und löscht keine Daten deiner Anfrage.
-                    </p>
-                  </div>
-                )}
       <div>
         <h3 className="text-xl font-semibold text-primary">Daten des Kindes</h3>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -269,7 +234,7 @@ export const BookingForm = () => {
             <select
               className="mt-1 w-full rounded-xl border border-primary-light px-4 py-3"
               value={form.wantsPrint}
-              onChange={(event) => handleChange('wantsPrint', event.target.value)}
+              onChange={(event) => handleChange('wantsPrint', event.target.value as FormState['wantsPrint'])}
             >
               <option>Nein</option>
               <option>Ja</option>
@@ -294,7 +259,7 @@ export const BookingForm = () => {
             <select
               className="mt-1 w-full rounded-xl border border-primary-light px-4 py-3"
               value={form.wantsShorts}
-              onChange={(event) => handleChange('wantsShorts', event.target.value)}
+              onChange={(event) => handleChange('wantsShorts', event.target.value as FormState['wantsShorts'])}
             >
               <option>Nein</option>
               <option>Ja</option>
@@ -326,7 +291,7 @@ export const BookingForm = () => {
             <select
               className="mt-1 w-full rounded-xl border border-primary-light px-4 py-3"
               value={form.wantsSocks}
-              onChange={(event) => handleChange('wantsSocks', event.target.value)}
+              onChange={(event) => handleChange('wantsSocks', event.target.value as FormState['wantsSocks'])}
             >
               <option>Nein</option>
               <option>Ja</option>
@@ -337,7 +302,7 @@ export const BookingForm = () => {
             <select
               className="mt-1 w-full rounded-xl border border-primary-light px-4 py-3"
               value={form.wantsGloves}
-              onChange={(event) => handleChange('wantsGloves', event.target.value)}
+              onChange={(event) => handleChange('wantsGloves', event.target.value as FormState['wantsGloves'])}
             >
               <option>Nein</option>
               <option>Ja</option>
@@ -375,7 +340,7 @@ export const BookingForm = () => {
           <select
             className="mt-1 w-full rounded-xl border border-primary-light px-4 py-3"
             value={form.earlyCare}
-            onChange={(event) => handleChange('earlyCare', event.target.value)}
+            onChange={(event) => handleChange('earlyCare', event.target.value as FormState['earlyCare'])}
           >
             <option>Nein</option>
             <option>Ja, bitte informieren</option>
@@ -421,20 +386,36 @@ export const BookingForm = () => {
         <label className="flex items-start gap-3">
           <input
             type="checkbox"
-            checked={form.acceptMedia}
-            onChange={(event) => handleChange('acceptMedia', event.target.checked)}
+            checked={form.subscribeNewsletter}
+            onChange={(event) => handleChange('subscribeNewsletter', event.target.checked)}
             className="mt-1"
           />
-          <span>Einwilligung Foto-/Videoaufnahmen</span>
+          <span>Newsletter empfangen</span>
         </label>
       </div>
 
       <div className="flex flex-col gap-3">
-        <button type="submit" className="rounded-full bg-primary text-white px-6 py-3 text-lg font-semibold">
-          Buchung absenden
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="rounded-full bg-primary text-white px-6 py-3 text-lg font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? 'Wird gesendet…' : 'Buchung absenden'}
         </button>
         <p className="text-center text-sm text-muted">Du erhältst innerhalb von 24 Stunden eine Bestätigung per E-Mail.</p>
       </div>
+
+      {submitStatus === 'success' && (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+          Danke! Deine Anfrage wurde an das KaLi-Kicker-Team gesendet. Wir melden uns zeitnah bei dir.
+        </div>
+      )}
+
+      {submitStatus === 'error' && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+          {submitError || 'Leider konnte die Anfrage nicht gesendet werden. Bitte versuche es später erneut.'}
+        </div>
+      )}
     </form>
   )
 }

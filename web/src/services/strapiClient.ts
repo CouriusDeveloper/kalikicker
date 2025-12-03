@@ -59,7 +59,7 @@ const detectCodespaceStrapiUrl = () => {
 	return `${window.location.protocol}//${match.groups.base}-1337.app.github.dev`
 }
 
-const STRAPI_URL = (
+export const STRAPI_URL = (
 	import.meta.env.VITE_STRAPI_URL ||
 	// When running inside GitHub Codespaces the frontend and Strapi use different forwarded ports.
 	// Derive the Strapi URL automatically so the site can fetch content without extra env tweaks.
@@ -173,6 +173,52 @@ const mapJob = (entry: StrapiEntry<JobAttributes>) => {
 		requirements: extractText(attributes.requirements),
 		email: attributes.email,
 	}
+}
+
+export type BookingRequestPayload = {
+	campId: string
+	campTitle?: string
+	campDateRange?: string
+	campLocation?: string
+	campPrice?: number
+	childFirstName: string
+	childLastName: string
+	birthdate: string
+	gender: string
+	parentEmail: string
+	parentPhone: string
+	jerseySize: string
+	wantsPrint: string
+	printInfo?: string
+	wantsShorts: string
+	shortSize?: string
+	wantsSocks: string
+	wantsGloves: string
+	gloveSize?: string
+	earlyCare: string
+	notes?: string
+	acceptAgb: boolean
+	acceptPrivacy: boolean
+	subscribeNewsletter: boolean
+}
+
+export const submitBookingRequest = async (payload: BookingRequestPayload) => {
+	const response = await fetch(`${STRAPI_URL}/api/booking-request`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(payload),
+	})
+
+	const data = await response.json().catch(() => ({}))
+
+	if (!response.ok) {
+		const message = data?.error?.message || data?.message || 'Die Buchung konnte nicht gesendet werden.'
+		throw new Error(message)
+	}
+
+	return data
 }
 
 export const fetchCamps = async () => {
