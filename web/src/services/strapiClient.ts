@@ -45,25 +45,10 @@ type CollectionResponse<T> = {
 	data: Array<StrapiEntry<T>>
 }
 
-const DEFAULT_STRAPI_URL = 'http://localhost:1337'
-
-const detectCodespaceStrapiUrl = () => {
-	if (typeof window === 'undefined') {
-		return undefined
-	}
-	const hostname = window.location.hostname
-	const match = hostname.match(/^(?<base>.+)-(\d+)\.app\.github\.dev$/)
-	if (!match || !match.groups?.base) {
-		return undefined
-	}
-	return `${window.location.protocol}//${match.groups.base}-1337.app.github.dev`
-}
+const DEFAULT_STRAPI_URL = 'https://upbeat-bear-69c2408fc9.strapiapp.com'
 
 export const STRAPI_URL = (
 	import.meta.env.VITE_STRAPI_URL ||
-	// When running inside GitHub Codespaces the frontend and Strapi use different forwarded ports.
-	// Derive the Strapi URL automatically so the site can fetch content without extra env tweaks.
-	detectCodespaceStrapiUrl() ||
 	DEFAULT_STRAPI_URL
 ).replace(/\/$/, '')
 

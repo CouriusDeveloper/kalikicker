@@ -1,4 +1,4 @@
-const CORS_ORIGINS = [
+const DEFAULT_CORS_ORIGINS = [
   'https://kalikicker.de',
   'https://www.kalikicker.de',
   'https://api.kalikicker.de',
@@ -10,25 +10,30 @@ const CORS_ORIGINS = [
   'http://127.0.0.1:5175',
 ]
 
-export default () => [
-  'strapi::logger',
-  'strapi::errors',
-  'strapi::security',
-  {
-    name: 'strapi::cors',
-    config: {
-      origin: CORS_ORIGINS,
-      allowedMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin'],
-      exposeHeaders: ['Content-Length', 'Date', 'X-Request-Id'],
-      credentials: true,
-      keepHeadersOnError: true,
+export default ({ env }) => {
+  const corsOrigins = env.array('CORS_ORIGINS', DEFAULT_CORS_ORIGINS)
+  const allowAllOrigins = corsOrigins.includes('*')
+
+  return [
+    'strapi::logger',
+    'strapi::errors',
+    'strapi::security',
+    {
+      name: 'strapi::cors',
+      config: {
+        origin: allowAllOrigins ? '*' : corsOrigins,
+        allowedMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin'],
+        exposeHeaders: ['Content-Length', 'Date', 'X-Request-Id'],
+        credentials: allowAllOrigins ? false : true,
+        keepHeadersOnError: true,
+      },
     },
-  },
-  'strapi::poweredBy',
-  'strapi::query',
-  'strapi::body',
-  'strapi::session',
-  'strapi::favicon',
-  'strapi::public',
-]
+    'strapi::poweredBy',
+    'strapi::query',
+    'strapi::body',
+    'strapi::session',
+    'strapi::favicon',
+    'strapi::public',
+  ]
+}
