@@ -1,6 +1,3 @@
-Perfekt, mit dem Logo können wir jetzt das Design sauber ableiten.
-Ich gebe dir:
-
 1. **Design-System (Farben, Typo, Komponenten) basierend auf dem Logo**
 2. **Wireframe für Landingpage (Startseite)** – klar strukturiert
 3. **Wireframes für alle Unterseiten**
