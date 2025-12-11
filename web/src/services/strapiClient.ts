@@ -424,7 +424,7 @@ export const fetchContactInfo = async () => {
 
 export const fetchLandingContent = async () => {
 	const result = await request<SingleResponse<LandingAttributes>>('/api/landing', (params) => {
-		params.append('populate[heroImage]', '*')
+		params.append('populate', 'heroImage')
 	})
 	return mapLandingContent(result.data)
 }
@@ -432,7 +432,7 @@ export const fetchLandingContent = async () => {
 export const fetchGalleryItems = async () => {
 	const result = await request<CollectionResponse<GalleryItemAttributes>>('/api/gallery-items', (params) => {
 		params.append('sort[0]', 'createdAt:desc')
-		params.append('populate[image]', '*')
+		params.append('populate', 'image')
 	})
 	return result.data.map(mapGalleryItem)
 }
