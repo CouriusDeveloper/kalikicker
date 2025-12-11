@@ -4,7 +4,8 @@
   "info": {
     "singularName": "project",
     "pluralName": "projects",
-    "displayName": "Project"
+    "displayName": "Spendenprojekt",
+    "description": "Sozial- & Spendenprojekte"
   },
   "options": {
     "draftAndPublish": true
@@ -30,6 +31,9 @@
     "logo": {
       "type": "string",
       "required": true
+    },
+    "url": {
+      "type": "string"
     }
   }
 }

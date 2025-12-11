@@ -51,6 +51,7 @@ type ProjectSeed = {
   description: string
   impact: string
   logo: string
+  url?: string
 }
 
 type JobSeed = {
@@ -255,6 +256,7 @@ export const projectSeedData: ProjectSeed[] = [
     description: 'Mentoring-Programm für Mädchenfußball an Stadtteilschulen.',
     impact: 'Spende pro Kind: 5 €',
     logo: 'https://dummyimage.com/120x120/E4F2ED/205645&text=KG',
+    url: 'https://kicking-girls.de',
   },
   {
     name: 'Bunte Bande e.V.',
@@ -262,6 +264,7 @@ export const projectSeedData: ProjectSeed[] = [
     description: 'Integration durch Sport für neu zugewanderte Kids.',
     impact: 'Finanzierung von Trainingssets & Fahrtkosten.',
     logo: 'https://dummyimage.com/120x120/FFB347/174034&text=BB',
+    url: 'https://buntebande.de',
   },
   {
     name: 'Viva con Agua',
@@ -269,6 +272,7 @@ export const projectSeedData: ProjectSeed[] = [
     description: 'Wasserprojekte weltweit – verbunden mit unseren Turnieren.',
     impact: 'Spendenläufe innerhalb der Camps.',
     logo: 'https://dummyimage.com/120x120/205645/ffffff&text=VcA',
+    url: 'https://www.vivaconagua.org',
   },
 ]
 

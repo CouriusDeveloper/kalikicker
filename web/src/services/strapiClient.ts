@@ -218,6 +218,7 @@ const mapProject = (entry: StrapiEntry<ProjectAttributes>) => {
 		description: attributes.description,
 		impact: attributes.impact,
 		logo: attributes.logo,
+		url: attributes.url ?? undefined,
 	}
 }
 

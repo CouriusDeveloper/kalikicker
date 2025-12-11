@@ -54,6 +54,7 @@ export type Project = {
   description: string
   impact: string
   logo: string
+  url?: string
 }
 
 export type Job = {
