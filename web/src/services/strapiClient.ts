@@ -1,4 +1,4 @@
-import type { Camp, ContactInfo, Event, Job, LegalDocument, Partner, Project, TeamMember } from '../types/content'
+import type { Camp, ContactInfo, Event, GalleryItem, Job, LandingContent, LegalDocument, Partner, Project, TeamMember } from '../types/content'
 
 type TextComponent = { id?: number; value?: string | null }
 type ScheduleComponent = { id?: number; time?: string | null; activity?: string | null }
@@ -30,6 +30,17 @@ type JobAttributes = Omit<Job, 'id' | 'requirements'> & {
 	requirements?: TextComponent[] | null
 }
 
+type MediaAttributes = {
+	url: string
+	alternativeText?: string | null
+}
+
+type MediaField = {
+	data: {
+		attributes: MediaAttributes
+	} | null
+}
+
 type LegalSectionAttributes = {
 	heading?: string | null
 	body?: string | null
@@ -51,6 +62,25 @@ type ContactAttributes = {
 	footerNote?: string | null
 	instagram?: string | null
 	facebook?: string | null
+}
+
+type LandingAttributes = {
+	heroKicker?: string | null
+	heroTitle?: string | null
+	heroSubtitle?: string | null
+	heroPrimaryLabel?: string | null
+	heroPrimaryUrl?: string | null
+	heroSecondaryLabel?: string | null
+	heroSecondaryUrl?: string | null
+	heroImage?: MediaField | null
+}
+
+type GalleryItemAttributes = {
+	title: string
+	slug: string
+	location?: string | null
+	year?: string | null
+	image?: MediaField | null
 }
 
 type StrapiEntry<T> =
@@ -101,6 +131,14 @@ const request = async <T>(path: string, configureParams?: (params: URLSearchPara
 		throw new Error(`Strapi request failed (${response.status})`)
 	}
 	return (await response.json()) as T
+}
+
+const resolveMediaUrl = (media?: MediaField | null) => {
+	const url = media?.data?.attributes?.url
+	if (!url) {
+		return undefined
+	}
+	return url.startsWith('http') ? url : `${STRAPI_URL}${url}`
 }
 
 const extractText = (items?: TextComponent[] | null) =>
@@ -231,6 +269,34 @@ const mapContactInfo = (entry: StrapiEntry<ContactAttributes> | null): ContactIn
 	}
 }
 
+const mapLandingContent = (entry: StrapiEntry<LandingAttributes> | null): LandingContent | undefined => {
+	if (!entry) {
+		return undefined
+	}
+	const attributes = unwrapEntry(entry)
+	return {
+		heroKicker: attributes.heroKicker ?? undefined,
+		heroTitle: attributes.heroTitle ?? undefined,
+		heroSubtitle: attributes.heroSubtitle ?? undefined,
+		heroPrimaryLabel: attributes.heroPrimaryLabel ?? undefined,
+		heroPrimaryUrl: attributes.heroPrimaryUrl ?? undefined,
+		heroSecondaryLabel: attributes.heroSecondaryLabel ?? undefined,
+		heroSecondaryUrl: attributes.heroSecondaryUrl ?? undefined,
+		heroImage: resolveMediaUrl(attributes.heroImage) ?? undefined,
+	}
+}
+
+const mapGalleryItem = (entry: StrapiEntry<GalleryItemAttributes>): GalleryItem => {
+	const attributes = unwrapEntry(entry)
+	return {
+		id: attributes.slug,
+		title: attributes.title,
+		location: attributes.location ?? undefined,
+		year: attributes.year ?? undefined,
+		image: resolveMediaUrl(attributes.image) ?? undefined,
+	}
+}
+
 export type BookingRequestPayload = {
 	campId: string
 	campTitle?: string
@@ -354,4 +420,19 @@ export const fetchImprintDocument = async () => {
 export const fetchContactInfo = async () => {
 	const result = await request<SingleResponse<ContactAttributes>>('/api/contact')
 	return mapContactInfo(result.data)
+}
+
+export const fetchLandingContent = async () => {
+	const result = await request<SingleResponse<LandingAttributes>>('/api/landing', (params) => {
+		params.append('populate[heroImage]', '*')
+	})
+	return mapLandingContent(result.data)
+}
+
+export const fetchGalleryItems = async () => {
+	const result = await request<CollectionResponse<GalleryItemAttributes>>('/api/gallery-items', (params) => {
+		params.append('sort[0]', 'createdAt:desc')
+		params.append('populate[image]', '*')
+	})
+	return result.data.map(mapGalleryItem)
 }

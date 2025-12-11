@@ -88,3 +88,22 @@ export type ContactInfo = {
   instagram?: string
   facebook?: string
 }
+
+export type LandingContent = {
+  heroKicker?: string
+  heroTitle?: string
+  heroSubtitle?: string
+  heroPrimaryLabel?: string
+  heroPrimaryUrl?: string
+  heroSecondaryLabel?: string
+  heroSecondaryUrl?: string
+  heroImage?: string
+}
+
+export type GalleryItem = {
+  id: string
+  title: string
+  location?: string
+  year?: string
+  image?: string
+}

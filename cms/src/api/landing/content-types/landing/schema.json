@@ -1,0 +1,41 @@
+{
+  "kind": "singleType",
+  "collectionName": "landing_settings",
+  "info": {
+    "singularName": "landing",
+    "pluralName": "landings",
+    "displayName": "Landing",
+    "description": "Inhalte für die Startseite"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "heroTitle": {
+      "type": "string"
+    },
+    "heroSubtitle": {
+      "type": "text"
+    },
+    "heroKicker": {
+      "type": "string"
+    },
+    "heroPrimaryLabel": {
+      "type": "string"
+    },
+    "heroPrimaryUrl": {
+      "type": "string"
+    },
+    "heroSecondaryLabel": {
+      "type": "string"
+    },
+    "heroSecondaryUrl": {
+      "type": "string"
+    },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    }
+  }
+}

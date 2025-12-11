@@ -1,6 +1,12 @@
 import type { LegalDocument } from '../types/content'
 
-export const LegalDocument = ({ document, fallbackTitle, loading }: { document?: LegalDocument; fallbackTitle: string; loading: boolean }) => {
+type LegalDocumentProps = {
+  document?: LegalDocument
+  fallbackTitle: string
+  loading: boolean
+}
+
+export const LegalDocumentContent = ({ document, fallbackTitle, loading }: LegalDocumentProps) => {
   if (loading && !document) {
     return <p className="text-muted">Inhalte werden geladen …</p>
   }

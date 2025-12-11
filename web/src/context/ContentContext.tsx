@@ -1,13 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import type { Camp, ContactInfo, Event, Job, LegalDocument, Partner, Project, TeamMember } from '../types/content'
+import type { Camp, ContactInfo, Event, GalleryItem, Job, LandingContent, LegalDocument, Partner, Project, TeamMember } from '../types/content'
 import {
   fetchAgbDocument,
   fetchCamps,
   fetchContactInfo,
   fetchEvents,
+  fetchGalleryItems,
   fetchImprintDocument,
   fetchJobs,
+  fetchLandingContent,
   fetchPartners,
   fetchPrivacyDocument,
   fetchProjects,
@@ -25,6 +27,8 @@ type CollectionsState = {
   privacy?: LegalDocument
   imprint?: LegalDocument
   contact?: ContactInfo
+  landing?: LandingContent
+  galleryItems: GalleryItem[]
 }
 
 export type ContentValue = CollectionsState & {
@@ -46,6 +50,8 @@ const initialCollections: CollectionsState = {
   privacy: undefined,
   imprint: undefined,
   contact: undefined,
+  landing: undefined,
+  galleryItems: [],
 }
 
 export const ContentProvider = ({ children }: { children: ReactNode }) => {
@@ -57,7 +63,20 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true)
     setError(undefined)
     try {
-      const [camps, events, team, partners, projects, jobs, agb, privacy, imprint, contact] = await Promise.all([
+      const [
+        camps,
+        events,
+        team,
+        partners,
+        projects,
+        jobs,
+        agb,
+        privacy,
+        imprint,
+        contact,
+        landing,
+        galleryItems,
+      ] = await Promise.all([
         fetchCamps(),
         fetchEvents(),
         fetchTeam(),
@@ -68,8 +87,10 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
         fetchPrivacyDocument(),
         fetchImprintDocument(),
         fetchContactInfo(),
+        fetchLandingContent(),
+        fetchGalleryItems(),
       ])
-      setCollections({ camps, events, team, partners, projects, jobs, agb, privacy, imprint, contact })
+      setCollections({ camps, events, team, partners, projects, jobs, agb, privacy, imprint, contact, landing, galleryItems })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Inhalte konnten nicht geladen werden.'
       setError(message)

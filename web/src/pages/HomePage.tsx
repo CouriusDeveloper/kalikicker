@@ -7,29 +7,62 @@ import { ProjectCard } from '../components/ProjectCard'
 import { PartnerLogoGrid } from '../components/PartnerLogoGrid'
 import { useContent } from '../context/ContentContext'
 
+const DEFAULT_HERO_IMAGE = 'https://images.unsplash.com/photo-1509023913720-34be34cfa8f1?auto=format&fit=crop&w=1200&q=80'
+
 export const HomePage = () => {
-  const { events, camps, projects, partners } = useContent()
+  const { events, camps, projects, partners, landing } = useContent()
   const upcomingEvents = events.slice(0, 3)
   const featuredCamps = camps.slice(0, 3)
   const featuredProjects = projects.slice(0, 3)
 
+  const buildAction = (label?: string, url?: string, variant: 'primary' | 'secondary' = 'primary') => {
+    if (!label || !url) return undefined
+    const baseClasses =
+      variant === 'primary'
+        ? 'inline-flex items-center rounded-full bg-primary text-white px-6 py-3 font-semibold'
+        : 'inline-flex items-center rounded-full border border-primary text-primary px-6 py-3 font-semibold'
+    const isExternal = /^https?:/i.test(url)
+    return isExternal ? (
+      <a key={label} href={url} className={baseClasses} target="_blank" rel="noreferrer">
+        {label}
+      </a>
+    ) : (
+      <Link key={label} to={url} className={baseClasses}>
+        {label}
+      </Link>
+    )
+  }
+
+  const heroPrimaryAction =
+    buildAction(landing?.heroPrimaryLabel, landing?.heroPrimaryUrl, 'primary') || (
+      <Link to="/buchen" className="inline-flex items-center rounded-full bg-primary text-white px-6 py-3 font-semibold">
+        Jetzt Camp buchen
+      </Link>
+    )
+
+  const heroSecondaryAction =
+    buildAction(landing?.heroSecondaryLabel, landing?.heroSecondaryUrl, 'secondary') || (
+      <Link to="/camps" className="inline-flex items-center rounded-full border border-primary text-primary px-6 py-3 font-semibold">
+        Camps & Veranstaltungen
+      </Link>
+    )
+
+  const heroImage = landing?.heroImage ?? DEFAULT_HERO_IMAGE
+
+  const heroTitle = landing?.heroTitle ?? 'Fußballcamps für Kinder mit Herz und Haltung'
+  const heroSubtitle =
+    landing?.heroSubtitle ?? 'Kindgerechtes Training, faire Betreuung und starke Sozialprojekte – das sind die KaLi Kicker.'
+  const heroKicker = landing?.heroKicker ?? 'Hamburg'
+
   return (
     <div className="space-y-16">
     <Hero
-      kicker="Hamburg"
-      title="Fußballcamps für Kinder mit Herz und Haltung"
-      subtitle="Kindgerechtes Training, faire Betreuung und starke Sozialprojekte – das sind die KaLi Kicker."
-      primaryAction={
-        <Link to="/buchen" className="inline-flex items-center rounded-full bg-primary text-white px-6 py-3 font-semibold">
-          Jetzt Camp buchen
-        </Link>
-      }
-      secondaryAction={
-        <Link to="/camps" className="inline-flex items-center rounded-full border border-primary text-primary px-6 py-3 font-semibold">
-          Camps & Veranstaltungen
-        </Link>
-      }
-      image="https://images.unsplash.com/photo-1509023913720-34be34cfa8f1?auto=format&fit=crop&w=1200&q=80"
+      kicker={heroKicker}
+      title={heroTitle}
+      subtitle={heroSubtitle}
+      primaryAction={heroPrimaryAction}
+      secondaryAction={heroSecondaryAction}
+      image={heroImage}
     />
 
     <Section
