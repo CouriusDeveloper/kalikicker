@@ -1,0 +1,28 @@
+{
+  "kind": "singleType",
+  "collectionName": "legal_imprints",
+  "info": {
+    "singularName": "impressum",
+    "pluralName": "impressums",
+    "displayName": "Impressum",
+    "description": "Impressumsangaben"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "stand": {
+      "type": "string"
+    },
+    "sections": {
+      "type": "component",
+      "repeatable": true,
+      "component": "legal.section",
+      "required": true
+    }
+  }
+}

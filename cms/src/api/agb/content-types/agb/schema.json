@@ -1,0 +1,28 @@
+{
+  "kind": "singleType",
+  "collectionName": "legal_agbs",
+  "info": {
+    "singularName": "agb",
+    "pluralName": "agbs",
+    "displayName": "AGB",
+    "description": "Allgemeine Geschäftsbedingungen"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "stand": {
+      "type": "string"
+    },
+    "sections": {
+      "type": "component",
+      "repeatable": true,
+      "component": "legal.section",
+      "required": true
+    }
+  }
+}

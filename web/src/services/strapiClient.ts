@@ -1,4 +1,4 @@
-import type { Camp, Event, Job, Partner, Project, TeamMember } from '../types/content'
+import type { Camp, ContactInfo, Event, Job, LegalDocument, Partner, Project, TeamMember } from '../types/content'
 
 type TextComponent = { id?: number; value?: string | null }
 type ScheduleComponent = { id?: number; time?: string | null; activity?: string | null }
@@ -30,6 +30,29 @@ type JobAttributes = Omit<Job, 'id' | 'requirements'> & {
 	requirements?: TextComponent[] | null
 }
 
+type LegalSectionAttributes = {
+	heading?: string | null
+	body?: string | null
+}
+
+type LegalDocumentAttributes = {
+	title: string
+	stand?: string | null
+	sections?: LegalSectionAttributes[] | null
+}
+
+type ContactAttributes = {
+	companyName: string
+	tagline?: string | null
+	address: string
+	phone?: string | null
+	email?: string | null
+	officeHours?: string | null
+	footerNote?: string | null
+	instagram?: string | null
+	facebook?: string | null
+}
+
 type StrapiEntry<T> =
 	| {
 		id: number
@@ -43,6 +66,10 @@ const unwrapEntry = <T>(entry: StrapiEntry<T>): T =>
 
 type CollectionResponse<T> = {
 	data: Array<StrapiEntry<T>>
+}
+
+type SingleResponse<T> = {
+	data: StrapiEntry<T> | null
 }
 
 const DEFAULT_STRAPI_URL = 'https://upbeat-bear-69c2408fc9.strapiapp.com'
@@ -167,6 +194,43 @@ const mapJob = (entry: StrapiEntry<JobAttributes>) => {
 	}
 }
 
+const mapLegalDocument = (entry: StrapiEntry<LegalDocumentAttributes> | null): LegalDocument | undefined => {
+	if (!entry) {
+		return undefined
+	}
+	const attributes = unwrapEntry(entry)
+	const sections = (attributes.sections ?? [])
+		.map((section) => ({
+			heading: section.heading?.trim() ?? '',
+			body: section.body?.trim() ?? '',
+		}))
+		.filter((section) => section.heading || section.body)
+
+	return {
+		title: attributes.title,
+		stand: attributes.stand ?? undefined,
+		sections,
+	}
+}
+
+const mapContactInfo = (entry: StrapiEntry<ContactAttributes> | null): ContactInfo | undefined => {
+	if (!entry) {
+		return undefined
+	}
+	const attributes = unwrapEntry(entry)
+	return {
+		companyName: attributes.companyName,
+		tagline: attributes.tagline ?? undefined,
+		address: attributes.address,
+		phone: attributes.phone ?? undefined,
+		email: attributes.email ?? undefined,
+		officeHours: attributes.officeHours ?? undefined,
+		footerNote: attributes.footerNote ?? undefined,
+		instagram: attributes.instagram ?? undefined,
+		facebook: attributes.facebook ?? undefined,
+	}
+}
+
 export type BookingRequestPayload = {
 	campId: string
 	campTitle?: string
@@ -264,4 +328,30 @@ export const fetchJobs = async () => {
 		params.append('populate[requirements]', '*')
 	})
 	return result.data.map(mapJob)
+}
+
+export const fetchAgbDocument = async () => {
+	const result = await request<SingleResponse<LegalDocumentAttributes>>('/api/agb', (params) => {
+		params.append('populate[sections]', '*')
+	})
+	return mapLegalDocument(result.data)
+}
+
+export const fetchPrivacyDocument = async () => {
+	const result = await request<SingleResponse<LegalDocumentAttributes>>('/api/datenschutz', (params) => {
+		params.append('populate[sections]', '*')
+	})
+	return mapLegalDocument(result.data)
+}
+
+export const fetchImprintDocument = async () => {
+	const result = await request<SingleResponse<LegalDocumentAttributes>>('/api/impressum', (params) => {
+		params.append('populate[sections]', '*')
+	})
+	return mapLegalDocument(result.data)
+}
+
+export const fetchContactInfo = async () => {
+	const result = await request<SingleResponse<ContactAttributes>>('/api/contact')
+	return mapContactInfo(result.data)
 }

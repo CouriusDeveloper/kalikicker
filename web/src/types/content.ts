@@ -65,3 +65,26 @@ export type Job = {
   requirements: string[]
   email: string
 }
+
+export type LegalSection = {
+  heading: string
+  body: string
+}
+
+export type LegalDocument = {
+  title: string
+  stand?: string
+  sections: LegalSection[]
+}
+
+export type ContactInfo = {
+  companyName: string
+  tagline?: string
+  address: string
+  phone?: string
+  email?: string
+  officeHours?: string
+  footerNote?: string
+  instagram?: string
+  facebook?: string
+}

@@ -1,0 +1,28 @@
+{
+  "kind": "singleType",
+  "collectionName": "legal_privacies",
+  "info": {
+    "singularName": "datenschutz",
+    "pluralName": "datenschutzes",
+    "displayName": "Datenschutz",
+    "description": "Datenschutzerklärung"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "stand": {
+      "type": "string"
+    },
+    "sections": {
+      "type": "component",
+      "repeatable": true,
+      "component": "legal.section",
+      "required": true
+    }
+  }
+}
