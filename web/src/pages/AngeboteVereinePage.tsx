@@ -15,6 +15,8 @@ const angebote = [
   },
 ]
 
+import { Link } from 'react-router-dom'
+
 export const AngeboteVereinePage = () => (
   <div className="space-y-8">
     <header className="space-y-4">
@@ -35,9 +37,9 @@ export const AngeboteVereinePage = () => (
           </ul>
           <p className="text-sm">Dauer: {angebot.dauer}</p>
           <p className="text-sm">Ort: {angebot.ort}</p>
-          <a href="mailto:vereine@kalikicker.de" className="inline-flex rounded-full bg-primary text-white px-5 py-2 font-semibold">
+          <Link to="/impressum" className="inline-flex rounded-full bg-primary text-white px-5 py-2 font-semibold">
             Anfrage senden
-          </a>
+          </Link>
         </div>
       ))}
     </div>
@@ -47,9 +49,9 @@ export const AngeboteVereinePage = () => (
       <p className="text-muted mt-2">
         Wir entwickeln mit euch zusammen Workshops, Talenttage oder Fortbildungen – perfekt abgestimmt auf euren Verein.
       </p>
-      <a href="mailto:hey@kalikicker.de" className="inline-flex mt-4 rounded-full border border-primary text-primary px-5 py-2 font-semibold">
+      <Link to="/impressum" className="inline-flex mt-4 rounded-full border border-primary text-primary px-5 py-2 font-semibold">
         Kontakt aufnehmen
-      </a>
+      </Link>
     </div>
   </div>
 )

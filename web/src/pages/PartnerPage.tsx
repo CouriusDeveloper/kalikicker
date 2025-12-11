@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { PartnerLogoGrid } from '../components/PartnerLogoGrid'
 import { useContent } from '../context/ContentContext'
 
@@ -31,12 +32,9 @@ export const PartnerPage = () => {
 
       <div className="bg-primary-light rounded-3xl p-6 text-center">
         <p className="text-lg font-semibold text-primary">Du möchtest Kooperationspartner werden?</p>
-        <a
-          href="mailto:partner@kalikicker.de"
-          className="inline-flex mt-4 rounded-full bg-primary text-white px-6 py-3 font-semibold"
-        >
+        <Link to="/impressum" className="inline-flex mt-4 rounded-full bg-primary text-white px-6 py-3 font-semibold">
           Kontakt aufnehmen
-        </a>
+        </Link>
       </div>
     </div>
   )

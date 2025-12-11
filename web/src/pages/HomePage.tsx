@@ -21,9 +21,9 @@ export const HomePage = () => {
       variant === 'primary'
         ? 'inline-flex items-center rounded-full bg-primary text-white px-6 py-3 font-semibold'
         : 'inline-flex items-center rounded-full border border-primary text-primary px-6 py-3 font-semibold'
-    const isExternal = /^https?:/i.test(url)
+    const isExternal = /^(https?:|mailto:|tel:)/i.test(url)
     return isExternal ? (
-      <a key={label} href={url} className={baseClasses} target="_blank" rel="noreferrer">
+      <a key={label} href={url} className={baseClasses} target={url.startsWith('http') ? '_blank' : undefined} rel={url.startsWith('http') ? 'noreferrer' : undefined}>
         {label}
       </a>
     ) : (
@@ -170,9 +170,9 @@ export const HomePage = () => {
         <Link to="/buchen" className="rounded-full bg-white text-primary px-6 py-3 font-semibold">
           Jetzt buchen
         </Link>
-        <a href="mailto:hey@kalikicker.de" className="rounded-full border border-white text-white px-6 py-3 font-semibold">
+        <Link to="/impressum" className="rounded-full border border-white text-white px-6 py-3 font-semibold">
           Kontakt
-        </a>
+        </Link>
       </div>
     </section>
   </div>

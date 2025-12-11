@@ -133,8 +133,10 @@ const request = async <T>(path: string, configureParams?: (params: URLSearchPara
 	return (await response.json()) as T
 }
 
-const resolveMediaUrl = (media?: MediaField | null) => {
-	const url = media?.data?.attributes?.url
+const resolveMediaUrl = (media?: MediaField | { url?: string | null } | null) => {
+	const directUrl = (media as { url?: string | null } | undefined)?.url
+	const nestedUrl = (media as MediaField | undefined)?.data?.attributes?.url
+	const url = directUrl ?? nestedUrl
 	if (!url) {
 		return undefined
 	}
