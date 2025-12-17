@@ -2,7 +2,7 @@
 import type { Context } from 'koa'
 
 const MAIL_FROM = 'info@web-loop.de'
-const BOOKING_NOTIFY_TO = 'beckerfynn@icloud.com'
+const BOOKING_NOTIFY_TO = process.env.BOOKING_NOTIFY_TO || ''
 const SUPPORT_BCC = ['info@web-loop.de']
 
 const requiredFields = [
@@ -381,7 +381,7 @@ export default {
     const notifyTo = BOOKING_NOTIFY_TO
     const fromAddress = MAIL_FROM
     const subscriberEmail = normalizeString(payload.parentEmail)
-    const toAddress = subscriberEmail || notifyTo
+    const toAddress = subscriberEmail || notifyTo || MAIL_FROM
     const bccCandidates = [...SUPPORT_BCC, notifyTo]
     const bcc = Array.from(new Set(bccCandidates.filter((entry) => entry && entry !== toAddress)))
 
