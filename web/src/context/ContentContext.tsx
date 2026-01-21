@@ -59,6 +59,55 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | undefined>(undefined)
 
+  const parseCampStartDate = (dateRange: string) => {
+    const normalized = dateRange.replace(/[–—]/g, '-').replace(/\s+/g, ' ').trim().toLowerCase()
+
+    const yearMatch = normalized.match(/(\d{4})/)
+    const startDayMatch = normalized.match(/^(\d{1,2})/)
+    const numericMatch = normalized.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/)
+
+    let day = startDayMatch ? Number(startDayMatch[1]) : undefined
+    let month: number | undefined
+    let year = yearMatch ? Number(yearMatch[1]) : undefined
+
+    if (numericMatch) {
+      month = Number(numericMatch[2])
+      year = Number(numericMatch[3])
+      if (!day) {
+        day = Number(numericMatch[1])
+      }
+    } else {
+      const monthMap: Record<string, number> = {
+        januar: 1,
+        februar: 2,
+        märz: 3,
+        maerz: 3,
+        april: 4,
+        mai: 5,
+        juni: 6,
+        juli: 7,
+        august: 8,
+        september: 9,
+        oktober: 10,
+        november: 11,
+        dezember: 12,
+      }
+      const monthMatch = normalized.match(/(januar|februar|märz|maerz|april|mai|juni|juli|august|september|oktober|november|dezember)/)
+      if (monthMatch) {
+        month = monthMap[monthMatch[1]]
+      }
+    }
+
+    if (!day || !month || !year) {
+      return Number.POSITIVE_INFINITY
+    }
+
+    return new Date(year, month - 1, day).getTime()
+  }
+
+  const sortCampsByDate = (items: Camp[]) =>
+    [...items].sort((a, b) => parseCampStartDate(a.dateRange) - parseCampStartDate(b.dateRange))
+
   const loadContent = useCallback(async () => {
     setLoading(true)
     setError(undefined)
@@ -90,7 +139,20 @@ export const ContentProvider = ({ children }: { children: ReactNode }) => {
         fetchLandingContent(),
         fetchGalleryItems(),
       ])
-      setCollections({ camps, events, team, partners, projects, jobs, agb, privacy, imprint, contact, landing, galleryItems })
+      setCollections({
+        camps: sortCampsByDate(camps),
+        events,
+        team,
+        partners,
+        projects,
+        jobs,
+        agb,
+        privacy,
+        imprint,
+        contact,
+        landing,
+        galleryItems,
+      })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Inhalte konnten nicht geladen werden.'
       setError(message)

@@ -1,9 +1,12 @@
 // @ts-nocheck
 import type { Context } from 'koa'
 
-const MAIL_FROM = 'info@web-loop.de'
+const MAIL_FROM = process.env.MAIL_FROM || 'buchung@kalikicker.de'
 const BOOKING_NOTIFY_TO = process.env.BOOKING_NOTIFY_TO || ''
-const SUPPORT_BCC = ['info@web-loop.de']
+const SUPPORT_BCC = (process.env.SUPPORT_BCC || 'info@kalikicker.de')
+  .split(',')
+  .map((entry) => entry.trim())
+  .filter(Boolean)
 
 const requiredFields = [
   'campId',

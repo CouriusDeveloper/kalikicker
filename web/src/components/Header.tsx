@@ -27,13 +27,12 @@ export const Header = () => {
       <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-3" onClick={close}>
           <img
-            src="/logo.jpeg"
+            src="/IMG_3539.jpeg"
             alt="KaLi Kicker Logo"
-            className="w-12 h-12 rounded-2xl border border-primary-light object-cover shadow-sm"
+            className="w-12 h-12 border border-primary-light object-contain shadow-sm"
           />
           <div>
             <p className="text-sm uppercase tracking-widest text-muted">KaLi Kicker</p>
-            <p className="text-xl font-semibold text-primary">Kids Football Camps</p>
           </div>
         </Link>
 

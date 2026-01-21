@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CampCard } from '../components/CampCard'
 import { EventList } from '../components/EventList'
@@ -5,6 +6,26 @@ import { useContent } from '../context/ContentContext'
 
 export const CampsOverviewPage = () => {
   const { camps, events } = useContent()
+  const [selectedSeason, setSelectedSeason] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState('')
+  const [selectedAgeGroup, setSelectedAgeGroup] = useState('')
+
+  const collectUnique = (values: string[]) =>
+    values.reduce<string[]>((acc, value) => (value && !acc.includes(value) ? [...acc, value] : acc), [])
+
+  const seasons = useMemo(() => collectUnique(camps.map((camp) => camp.season)), [camps])
+  const locations = useMemo(() => collectUnique(camps.map((camp) => camp.location)), [camps])
+  const ageGroups = useMemo(() => collectUnique(camps.map((camp) => camp.ageGroup)), [camps])
+
+  const filteredCamps = useMemo(
+    () =>
+      camps.filter((camp) =>
+        (!selectedSeason || camp.season === selectedSeason) &&
+        (!selectedLocation || camp.location === selectedLocation) &&
+        (!selectedAgeGroup || camp.ageGroup === selectedAgeGroup)
+      ),
+    [camps, selectedSeason, selectedLocation, selectedAgeGroup]
+  )
 
   return (
     <div className="space-y-10">
@@ -15,23 +36,55 @@ export const CampsOverviewPage = () => {
     </header>
 
     <div className="bg-white rounded-3xl border border-primary-light shadow-sm p-6 grid gap-4 md:grid-cols-3">
-      {['Ferien', 'Ort', 'Altersgruppe'].map((label) => (
-        <label key={label} className="text-sm font-semibold text-primary">
-          {label}
-          <select className="mt-2 w-full rounded-xl border border-primary-light px-4 py-3 text-sm">
-            <option>Alle</option>
-          </select>
-        </label>
-      ))}
-      <div className="flex items-end">
-        <button className="w-full rounded-full border border-primary text-primary px-4 py-2 font-semibold">
-          Filter anwenden
-        </button>
-      </div>
+      <label className="text-sm font-semibold text-primary">
+        Ferien
+        <select
+          className="mt-2 w-full rounded-xl border border-primary-light px-4 py-3 text-sm"
+          value={selectedSeason}
+          onChange={(event) => setSelectedSeason(event.target.value)}
+        >
+          <option value="">Alle</option>
+          {seasons.map((season) => (
+            <option key={season} value={season}>
+              {season}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="text-sm font-semibold text-primary">
+        Ort
+        <select
+          className="mt-2 w-full rounded-xl border border-primary-light px-4 py-3 text-sm"
+          value={selectedLocation}
+          onChange={(event) => setSelectedLocation(event.target.value)}
+        >
+          <option value="">Alle</option>
+          {locations.map((location) => (
+            <option key={location} value={location}>
+              {location}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="text-sm font-semibold text-primary">
+        Altersgruppe
+        <select
+          className="mt-2 w-full rounded-xl border border-primary-light px-4 py-3 text-sm"
+          value={selectedAgeGroup}
+          onChange={(event) => setSelectedAgeGroup(event.target.value)}
+        >
+          <option value="">Alle</option>
+          {ageGroups.map((ageGroup) => (
+            <option key={ageGroup} value={ageGroup}>
+              {ageGroup}
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
 
     <div className="grid gap-6 md:grid-cols-3">
-      {camps.map((camp) => (
+      {filteredCamps.map((camp) => (
         <CampCard key={camp.id} camp={camp} />
       ))}
     </div>

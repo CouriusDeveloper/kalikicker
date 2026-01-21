@@ -40,7 +40,7 @@ export const CampDetailPage = () => {
             </div>
             <div className="flex items-center justify-between">
               <dt className="text-muted">Ort</dt>
-              <dd className="font-semibold">{camp.location} · {camp.venue}</dd>
+              <dd className="font-semibold text-right">{camp.location} · {camp.venue}</dd>
             </div>
             <div className="flex items-center justify-between">
               <dt className="text-muted">Altersklasse</dt>
