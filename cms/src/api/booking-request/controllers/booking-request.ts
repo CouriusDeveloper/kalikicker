@@ -268,6 +268,7 @@ const buildHtmlBody = (payload) => {
             payload.campDateRange ? renderRow('Zeitraum', payload.campDateRange) : '',
             renderRow('Ort', payload.campLocation || 'Noch offen'),
             renderRow('Grundpreis', basePriceText),
+            renderRow('Frühbetreuung gewünscht', payload.earlyCare || 'Keine Angabe'),
           ].join('')}
         </table>
       `,
